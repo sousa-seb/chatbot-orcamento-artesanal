@@ -1,0 +1,741 @@
+{
+  "name": "TCC - WIP1",
+  "nodes": [
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "dff6e531-b7b0-4907-91b7-d4850aa7b0a2",
+              "name": "pedido_cliente",
+              "value": "={{$json.message.text}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -208,
+        -288
+      ],
+      "id": "6fc015b7-eec6-4781-a976-e72e6b5d0af7",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3.5-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3.5-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Você é responsável por analisar pedidos de chaveiros artesanais de biscuit.\n\nAnalise SOMENTE as características explicitamente informadas pelo cliente e atribua uma pontuação de 1 a 3 para cada um dos cinco critérios abaixo.\n\nAplique as regras de forma literal e consistente. Não invente, complete ou suponha características que não estejam descritas.\n\nCRITÉRIOS:\n\n1. CORES\nConte somente as cores DIFERENTES explicitamente mencionadas pelo cliente.\nNão conte a mesma cor mais de uma vez.\n\n1 = 1 a 3 cores diferentes\n2 = 4 a 6 cores diferentes\n3 = 7 ou mais cores diferentes\n\nExemplo:\n\"cabelo rosa, vestido preto, meias brancas e sapatos pretos\"\npossui 3 cores diferentes: rosa, preto e branco.\nPontuação de cores = 1.\n\n2. ROUPA\n\n1 = nenhuma roupa descrita ou roupa muito simples\n2 = roupa simples com algumas peças ou detalhes\n3 = roupa detalhada, com muitas peças, camadas, estampas ou elementos complexos\n\n3. CABELO\n\n1 = cabelo liso ou de forma simples\n2 = cabelo ondulado, cacheado ou com penteado\n3 = penteado complexo, muitas mechas ou muitos detalhes\n\nO comprimento do cabelo, sozinho, não deve aumentar a pontuação.\n\n4. ACESSÓRIOS\nConte somente acessórios ou enfeites explicitamente mencionados.\n\n1 = nenhum acessório\n2 = 1 acessório\n3 = 2 ou mais acessórios\n\nExemplo:\n\"dois enfeites pretos no cabelo\"\nPontuação de acessórios = 3.\n\n5. DETALHES PEQUENOS\n\n1 = poucos ou nenhum detalhe pequeno\n2 = alguns detalhes pequenos\n3 = muitos detalhes pequenos\n\nNão conte como detalhes pequenos características que já foram avaliadas como roupa, cabelo ou acessórios, a menos que o cliente descreva detalhes adicionais específicos.\n\nPedido do cliente:\n{{ $(\"Recuperar pedido agrupado\").item.json.pedido_cliente }}\n\nResponda APENAS com um objeto JSON válido, sem explicações e sem texto antes ou depois.\n\nFormato obrigatório:\n\n{\n  \"cores\": 0,\n  \"roupa\": 0,\n  \"cabelo\": 0,\n  \"acessorios\": 0,\n  \"detalhes_pequenos\": 0\n}\n\nTodos os valores devem ser números inteiros de 1 a 3."
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1616,
+        0
+      ],
+      "id": "ac1532cc-9e7e-453c-9af5-c0183e147494",
+      "name": "Message a model"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\n\n// Pega a resposta do Gemini\nconst texto = item.json.content.parts[0].text;\n\n// Converte o texto JSON do Gemini em objeto\nconst dados = JSON.parse(texto);\n\n// Soma os cinco critérios\nconst pontuacao =\n  dados.cores +\n  dados.roupa +\n  dados.cabelo +\n  dados.acessorios +\n  dados.detalhes_pequenos;\n\n// Define a complexidade\nlet complexidade;\n\nif (pontuacao <= 8) {\n  complexidade = \"Básica\";\n} else if (pontuacao <= 12) {\n  complexidade = \"Média\";\n} else {\n  complexidade = \"Elaborada\";\n}\n\n// Retorna os dados organizados\nreturn [\n  {\n    json: {\n      cores: dados.cores,\n      roupa: dados.roupa,\n      cabelo: dados.cabelo,\n      acessorios: dados.acessorios,\n      detalhes_pequenos: dados.detalhes_pequenos,\n      pontuacao: pontuacao,\n      complexidade: complexidade\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1968,
+        0
+      ],
+      "id": "c9798c21-f5fb-4cb1-856f-9080cf047f33",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "CONFIGURAR_ID_DA_PLANILHA",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "CONFIGURAR_ABA_DA_PLANILHA",
+          "mode": "id"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "={{ \"Complexidade\" }}",
+              "lookupValue": "={{$json.complexidade}}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2176,
+        0
+      ],
+      "id": "0348a268-8574-4c8b-b0ef-684766785548",
+      "name": "Get row(s) in sheet"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e8e2e3b1-7a4d-4f9e-a40a-6eed38732d5e",
+              "name": "resposta_orcamento",
+              "value": "={{ \"Certinho! 😊\\n\\nAnalisei as características que você descreveu e o preço de referência para esse chaveiro é de \" + $json[\"Preço de Referência\"] + \".\\n\\nEsse valor é uma estimativa inicial e pode sofrer pequenos ajustes caso sejam adicionados ou alterados detalhes do pedido.\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2384,
+        0
+      ],
+      "id": "eb5d20b1-7bb7-4882-8317-2a0b9c03a20a",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -400,
+        -288
+      ],
+      "id": "ca34a311-c30e-4f3d-b71c-3c7b3ead646b",
+      "name": "Telegram Trigger"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $(\"Telegram Trigger\").item.json.message.chat.id }}",
+        "text": "={{$json.resposta_orcamento}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2592,
+        192
+      ],
+      "id": "3f3a0dc7-743a-4b0c-b59a-015800c70343",
+      "name": "Send a text message"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-3.5-flash-lite",
+          "mode": "list",
+          "cachedResultName": "models/gemini-3.5-flash-lite"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Você é responsável por verificar se uma mensagem contém informações suficientes para gerar uma estimativa de orçamento de um chaveiro artesanal de biscuit.\n\nAnalise a mensagem do cliente.\n\nConsidere SUFICIENTE quando o cliente realmente descreve a peça desejada e informa pelo menos duas características concretas, como:\n- cabelo;\n- roupa;\n- cores;\n- acessórios;\n- detalhes visuais.\n\nConsidere INCOMPLETO quando a mensagem for apenas uma saudação ou muito vaga, por exemplo:\n- \"oi\"\n- \"olá\"\n- \"bom dia\"\n- \"boa tarde\"\n- \"quanto custa?\"\n- \"quero um chaveiro\"\n- \"quero fazer um orçamento\"\n\nUma saudação junto com uma descrição suficiente NÃO deve ser considerada incompleta.\n\nMensagem do cliente:\n{{ $json.pedido_cliente }}\n\nResponda SOMENTE com uma destas duas palavras:\n\nSUFICIENTE\n\nou\n\nINCOMPLETO"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1088,
+        0
+      ],
+      "id": "4e490b9c-89c5-46f7-b0c0-9e0dc98b5044",
+      "name": "Validar pedido"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "2dc039dd-67ce-484d-b4f1-831f5358e2ae",
+              "leftValue": "={{ $json.content.parts[0].text.trim() }}",
+              "rightValue": "SUFICIENTE",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1424,
+        128
+      ],
+      "id": "5e76162c-ee0d-4501-bc25-584c589c0969",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $(\"Telegram Trigger\").item.json.message.chat.id }}",
+        "text": "Olá! 😊 Posso te ajudar com o orçamento do seu chaveiro.  Para conseguir fazer uma estimativa, me conte um pouco mais sobre o personagem, como cabelo, roupa, cores, acessórios e outros detalhes visuais da peça.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1632,
+        224
+      ],
+      "id": "5b7d1985-defb-41bb-a5cf-38490c416798",
+      "name": "Send a text message1"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "mensagens_debounce",
+          "mode": "list",
+          "cachedResultName": "mensagens_debounce"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "processado": false,
+            "chat_id": "={{ $(\"Telegram Trigger\").item.json.message.chat.id }}",
+            "message_id": "={{ $(\"Telegram Trigger\").item.json.message.message_id }}",
+            "texto": "={{$json.pedido_cliente}}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "chat_id",
+              "displayName": "chat_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message_id",
+              "displayName": "message_id",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "texto",
+              "displayName": "texto",
+              "required": true,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recebido_em",
+              "displayName": "recebido_em",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "processado",
+              "displayName": "processado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        0,
+        -288
+      ],
+      "id": "27aff8da-23cb-4f96-89a4-65a965213e98",
+      "name": "Insert rows in a table"
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        208,
+        -288
+      ],
+      "id": "5983faf8-8318-4ebf-bb17-c4fe748ad0a1",
+      "name": "Wait"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT\n    MAX(message_id) AS latest_message_id,\n    STRING_AGG(texto, E'\\n' ORDER BY id) AS full_message,\n    COUNT(*)::int AS total_mensagens\nFROM mensagens_debounce\nWHERE chat_id = $1\n  AND processado = FALSE;",
+        "options": {
+          "queryReplacement": "={{$json.chat_id}}"
+        }
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        416,
+        -288
+      ],
+      "id": "4d38de4e-3885-4919-89fc-27fe64f3c5f7",
+      "name": "Execute a SQL query"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "129716fe-5842-4999-80eb-377fa66370a2",
+              "leftValue": "={{ Number($json.latest_message_id) }}",
+              "rightValue": "={{ Number($(\"Wait\").item.json.message_id) }}",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        -288
+      ],
+      "id": "824d7a3e-7bc5-45e4-97ce-bdf9dfab4507",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6c9ee12f-c76f-4571-8cbb-320517621111",
+              "name": "pedido_cliente",
+              "value": "={{$json.full_message}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        464,
+        0
+      ],
+      "id": "15c83832-660c-4362-b192-80bc2f9210c5",
+      "name": "Preparar mensagem agrupada"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH atualizadas AS (\n    UPDATE mensagens_debounce\n    SET processado = TRUE\n    WHERE chat_id = {{ $(\"Wait\").item.json.chat_id }}\n      AND message_id <= {{ $json.latest_message_id }}\n      AND processado = FALSE\n    RETURNING id\n)\nSELECT COUNT(*)::int AS mensagens_processadas\nFROM atualizadas;",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        672,
+        0
+      ],
+      "id": "5de398b6-dc02-4842-be67-08be66b79097",
+      "name": "Marcar mensagens processadas"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e733dd5a-473c-4748-8c33-19e6c22ff8a1",
+              "name": "pedido_cliente",
+              "value": "={{ $(\"Preparar mensagem agrupada\").item.json.pedido_cliente }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        0
+      ],
+      "id": "a7b022d9-63df-435f-a6bb-5549eaee5475",
+      "name": "Recuperar pedido agrupado"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "CONFIGURAR_ID_DA_PLANILHA",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "CONFIGURAR_ABA_DA_PLANILHA",
+          "mode": "id"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Descrição do pedido": "={{ $(\"Recuperar pedido agrupado\").item.json.pedido_cliente }}",
+            "Pontuação": "={{ $(\"Code in JavaScript\").item.json.pontuacao }}",
+            "Complexidade": "={{ $(\"Code in JavaScript\").item.json.complexidade }}",
+            "Preço de referência": "={{ $(\"Get row(s) in sheet\").item.json[\"Preço de Referência\"] }}",
+            "Resultado do chatbot": "={{$json.resposta_orcamento}}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Descrição do pedido",
+              "displayName": "Descrição do pedido",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Pontuação",
+              "displayName": "Pontuação",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Complexidade",
+              "displayName": "Complexidade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Preço de referência",
+              "displayName": "Preço de referência",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Resultado do chatbot",
+              "displayName": "Resultado do chatbot",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2592,
+        0
+      ],
+      "id": "f4a14ee1-4687-4e79-b000-94fc90017c74",
+      "name": "Append row in sheet"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar pedido": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Execute a SQL query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute a SQL query": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Preparar mensagem agrupada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Preparar mensagem agrupada": {
+      "main": [
+        [
+          {
+            "node": "Marcar mensagens processadas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar mensagens processadas": {
+      "main": [
+        [
+          {
+            "node": "Recuperar pedido agrupado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recuperar pedido agrupado": {
+      "main": [
+        [
+          {
+            "node": "Validar pedido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "tags": []
+}
