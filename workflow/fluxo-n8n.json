@@ -50,7 +50,13 @@
         0
       ],
       "id": "ac1532cc-9e7e-453c-9af5-c0183e147494",
-      "name": "Message a model"
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZJiibrVcrhmSPmM0",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
     },
     {
       "parameters": {
@@ -69,13 +75,17 @@
       "parameters": {
         "documentId": {
           "__rl": true,
-          "value": "CONFIGURAR_ID_DA_PLANILHA",
-          "mode": "id"
+          "value": "1MWD6gFP9wvZuiSog5Qv2rU0MGAZiE5YhpoX3Fe4a_sw",
+          "mode": "list",
+          "cachedResultName": "Banco de dados dos produtos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MWD6gFP9wvZuiSog5Qv2rU0MGAZiE5YhpoX3Fe4a_sw/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
-          "value": "CONFIGURAR_ABA_DA_PLANILHA",
-          "mode": "id"
+          "value": 915386374,
+          "mode": "list",
+          "cachedResultName": "Produtos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MWD6gFP9wvZuiSog5Qv2rU0MGAZiE5YhpoX3Fe4a_sw/edit#gid=915386374"
         },
         "filtersUI": {
           "values": [
@@ -94,7 +104,13 @@
         0
       ],
       "id": "0348a268-8574-4c8b-b0ef-684766785548",
-      "name": "Get row(s) in sheet"
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WSGw9Ishi7U88VHK",
+          "name": "Google Sheets account"
+        }
+      }
     },
     {
       "parameters": {
@@ -103,7 +119,7 @@
             {
               "id": "e8e2e3b1-7a4d-4f9e-a40a-6eed38732d5e",
               "name": "resposta_orcamento",
-              "value": "={{ \"Certinho! 😊\\n\\nAnalisei as características que você descreveu e o preço de referência para esse chaveiro é de \" + $json[\"Preço de Referência\"] + \".\\n\\nEsse valor é uma estimativa inicial e pode sofrer pequenos ajustes caso sejam adicionados ou alterados detalhes do pedido.\" }}",
+              "value": "=Certinho! 😊\n\nAnalisei as características que você descreveu.\n\nClassificação do pedido: {{ $(\"Code in JavaScript\").item.json.complexidade }}\nPontuação de complexidade: {{ $(\"Code in JavaScript\").item.json.pontuacao }} pontos\n\nO preço de referência para esse chaveiro é de {{ $(\"Get row(s) in sheet\").item.json[\"Preço de Referência\"] }}.\n\nEsse valor é uma estimativa inicial e pode sofrer pequenos ajustes caso sejam adicionados ou alterados detalhes do pedido.",
               "type": "string"
             }
           ]
@@ -133,7 +149,14 @@
         -288
       ],
       "id": "ca34a311-c30e-4f3d-b71c-3c7b3ead646b",
-      "name": "Telegram Trigger"
+      "name": "Telegram Trigger",
+      "webhookId": "79c4cd66-2eb3-4490-9eb9-0e4a0ce21bc1",
+      "credentials": {
+        "telegramApi": {
+          "id": "ceR7WaUnFOJtqucg",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -148,7 +171,14 @@
         192
       ],
       "id": "3f3a0dc7-743a-4b0c-b59a-015800c70343",
-      "name": "Send a text message"
+      "name": "Send a text message",
+      "webhookId": "92bf0ba1-1bb8-47f5-9720-2fa9313ffae1",
+      "credentials": {
+        "telegramApi": {
+          "id": "ceR7WaUnFOJtqucg",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -161,7 +191,7 @@
         "messages": {
           "values": [
             {
-              "content": "=Você é responsável por verificar se uma mensagem contém informações suficientes para gerar uma estimativa de orçamento de um chaveiro artesanal de biscuit.\n\nAnalise a mensagem do cliente.\n\nConsidere SUFICIENTE quando o cliente realmente descreve a peça desejada e informa pelo menos duas características concretas, como:\n- cabelo;\n- roupa;\n- cores;\n- acessórios;\n- detalhes visuais.\n\nConsidere INCOMPLETO quando a mensagem for apenas uma saudação ou muito vaga, por exemplo:\n- \"oi\"\n- \"olá\"\n- \"bom dia\"\n- \"boa tarde\"\n- \"quanto custa?\"\n- \"quero um chaveiro\"\n- \"quero fazer um orçamento\"\n\nUma saudação junto com uma descrição suficiente NÃO deve ser considerada incompleta.\n\nMensagem do cliente:\n{{ $json.pedido_cliente }}\n\nResponda SOMENTE com uma destas duas palavras:\n\nSUFICIENTE\n\nou\n\nINCOMPLETO"
+              "content": "=Você é responsável por verificar se uma mensagem de cliente pode ser utilizada para gerar um orçamento de chaveiro artesanal em biscuit.\n\nO sistema atualmente trabalha SOMENTE com:\n- chaveiros de personagens fictícios;\n- feitos em biscuit;\n- tamanho de até 5 cm.\n\nAnalise a mensagem do cliente e responda com APENAS UMA das três opções abaixo:\n\nSUFICIENTE\nINCOMPLETO\nFORA_ESCOPO\n\nUse as seguintes regras:\n\n1. Responda SUFICIENTE quando:\n- o cliente estiver solicitando um chaveiro de personagem fictício compatível com o sistema;\n- e houver informações visuais suficientes para analisar a peça, como cabelo, roupa, cores, acessórios ou outros detalhes.\n\n2. Responda INCOMPLETO quando:\n- o cliente demonstrar interesse em um chaveiro compatível com o sistema, mas fornecer poucas informações;\n- enviar apenas saudação, como \"oi\", \"olá\" ou \"bom dia\";\n- pedir orçamento sem descrever suficientemente o personagem.\n\nQuando não houver informação suficiente para saber se o pedido está fora do escopo, prefira INCOMPLETO.\n\n3. Responda FORA_ESCOPO quando o cliente informar explicitamente algo que não é atendido pelo sistema, por exemplo:\n- pedir miniatura, boneco ou outro tipo de peça que não seja chaveiro;\n- pedir peça maior que 5 cm;\n- pedir uma representação de si próprio ou de outra pessoa real;\n- pedir algo que não seja um personagem fictício;\n- solicitar outro produto diferente dos chaveiros atualmente disponíveis.\n\nIMPORTANTE:\n- Não faça orçamento.\n- Não atribua pontuação.\n- Não explique sua decisão.\n- Não invente informações.\n- Responda somente SUFICIENTE, INCOMPLETO ou FORA_ESCOPO.\n\nMensagem do cliente:\n{{ $(\"Recuperar pedido agrupado\").item.json.pedido_cliente }}"
             }
           ]
         },
@@ -175,7 +205,13 @@
         0
       ],
       "id": "4e490b9c-89c5-46f7-b0c0-9e0dc98b5044",
-      "name": "Validar pedido"
+      "name": "Validar pedido",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "ZJiibrVcrhmSPmM0",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
     },
     {
       "parameters": {
@@ -220,11 +256,18 @@
       "type": "n8n-nodes-base.telegram",
       "typeVersion": 1.2,
       "position": [
-        1632,
-        224
+        1856,
+        320
       ],
       "id": "5b7d1985-defb-41bb-a5cf-38490c416798",
-      "name": "Send a text message1"
+      "name": "Send a text message1",
+      "webhookId": "d10f4bbb-903e-46ab-a3f8-65180197d36d",
+      "credentials": {
+        "telegramApi": {
+          "id": "ceR7WaUnFOJtqucg",
+          "name": "Telegram account"
+        }
+      }
     },
     {
       "parameters": {
@@ -320,7 +363,13 @@
         -288
       ],
       "id": "27aff8da-23cb-4f96-89a4-65a965213e98",
-      "name": "Insert rows in a table"
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "QxWFFSJJIMNykk9d",
+          "name": "Postgres account"
+        }
+      }
     },
     {
       "parameters": {
@@ -333,7 +382,8 @@
         -288
       ],
       "id": "5983faf8-8318-4ebf-bb17-c4fe748ad0a1",
-      "name": "Wait"
+      "name": "Wait",
+      "webhookId": "36dcaf86-8472-4aac-ae86-04d0d6cdbbee"
     },
     {
       "parameters": {
@@ -350,7 +400,13 @@
         -288
       ],
       "id": "4d38de4e-3885-4919-89fc-27fe64f3c5f7",
-      "name": "Execute a SQL query"
+      "name": "Execute a SQL query",
+      "credentials": {
+        "postgres": {
+          "id": "QxWFFSJJIMNykk9d",
+          "name": "Postgres account"
+        }
+      }
     },
     {
       "parameters": {
@@ -422,7 +478,13 @@
         0
       ],
       "id": "5de398b6-dc02-4842-be67-08be66b79097",
-      "name": "Marcar mensagens processadas"
+      "name": "Marcar mensagens processadas",
+      "credentials": {
+        "postgres": {
+          "id": "QxWFFSJJIMNykk9d",
+          "name": "Postgres account"
+        }
+      }
     },
     {
       "parameters": {
@@ -452,13 +514,17 @@
         "operation": "append",
         "documentId": {
           "__rl": true,
-          "value": "CONFIGURAR_ID_DA_PLANILHA",
-          "mode": "id"
+          "value": "1MWD6gFP9wvZuiSog5Qv2rU0MGAZiE5YhpoX3Fe4a_sw",
+          "mode": "list",
+          "cachedResultName": "Banco de dados dos produtos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MWD6gFP9wvZuiSog5Qv2rU0MGAZiE5YhpoX3Fe4a_sw/edit?usp=drivesdk"
         },
         "sheetName": {
           "__rl": true,
-          "value": "CONFIGURAR_ABA_DA_PLANILHA",
-          "mode": "id"
+          "value": 1528501709,
+          "mode": "list",
+          "cachedResultName": "Orçamentos",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1MWD6gFP9wvZuiSog5Qv2rU0MGAZiE5YhpoX3Fe4a_sw/edit#gid=1528501709"
         },
         "columns": {
           "mappingMode": "defineBelow",
@@ -544,7 +610,69 @@
         0
       ],
       "id": "f4a14ee1-4687-4e79-b000-94fc90017c74",
-      "name": "Append row in sheet"
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WSGw9Ishi7U88VHK",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "328410e8-fb85-4711-bd23-fcc9fcc503e3",
+              "leftValue": "={{ $json.content.parts[0].text.trim() }}",
+              "rightValue": "FORA_ESCOPO",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1632,
+        192
+      ],
+      "id": "4c096693-d495-48bd-a6f6-b664ba3d7d79",
+      "name": "Verificar fora do escopo"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $(\"Telegram Trigger\").item.json.message.chat.id }}",
+        "text": "Olá! 😊 Tudo bem?  No momento, estamos fazendo encomendas apenas de chaveiros de personagens fictícios em biscuit, com até 5 cm.   Futuramente, pretendemos aceitar outros tipos de peças e tamanhos maiores também. ✨  Se quiser, podemos montar agora o orçamento do seu personagem favorito! É só me contar como ele é: cabelo, roupa, cores, acessórios e outros detalhes visuais. 🎨",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1856,
+        160
+      ],
+      "id": "ed657d67-c9d4-4f90-9573-07f0c17aec42",
+      "name": "Send a text message2",
+      "webhookId": "725d1fa9-3c4e-4bb7-b9fe-217d0e54902d",
+      "credentials": {
+        "telegramApi": {
+          "id": "ceR7WaUnFOJtqucg",
+          "name": "Telegram account"
+        }
+      }
     }
   ],
   "pinData": {},
@@ -642,7 +770,7 @@
         ],
         [
           {
-            "node": "Send a text message1",
+            "node": "Verificar fora do escopo",
             "type": "main",
             "index": 0
           }
@@ -690,7 +818,8 @@
             "type": "main",
             "index": 0
           }
-        ]
+        ],
+        []
       ]
     },
     "Preparar mensagem agrupada": {
@@ -730,12 +859,36 @@
       "main": [
         []
       ]
+    },
+    "Verificar fora do escopo": {
+      "main": [
+        [
+          {
+            "node": "Send a text message2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a text message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     }
   },
-  "active": false,
+  "active": true,
   "settings": {
     "executionOrder": "v1",
     "binaryMode": "separate"
   },
+  "versionId": "63e52f65-6fad-4639-992c-a0dfbe683cc6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ecf38cafae2ae194568c64d9167a26b20173c7b2d5ae584281d574a4e69151a2"
+  },
+  "id": "oty5IE8htUh8pbqR",
   "tags": []
 }
