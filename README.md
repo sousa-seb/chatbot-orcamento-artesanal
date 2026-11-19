@@ -8,7 +8,7 @@ Este projeto faz parte do Trabalho de Conclusão de Curso (TCC II) do Bacharelad
 
 A proposta consiste no desenvolvimento de um chatbot capaz de interpretar descrições de produtos artesanais, identificar características, calcular a complexidade da peça e fornecer uma estimativa de orçamento.
 
-O protótipo está direcionado inicialmente à produção de chaveiros artesanais de biscuit personalizados.
+O protótipo desenvolvido é direcionado à geração de orçamentos de referência para chaveiros de personagens fictícios em biscuit de até 5 cm.
 
 ## 2. Objetivo
 
@@ -87,18 +87,15 @@ O objetivo é evitar o processamento isolado de várias mensagens enviadas rapid
 
 ```text
 chatbot-orcamento-artesanal/
-|
-|-- README.md
-|
-|-- workflow/
-|   |-- README.md
-|   |-- fluxo-n8n.json
-|
-|-- codigo/
-|   |-- classificacao.js
-|
-|-- documentacao/
-    |-- README.md
+│
+├── README.md
+│
+├── workflow/
+│   ├── README.md
+│   └── fluxo-n8n.json
+│
+└── codigo/
+    └── classificacao.js
 ```
 
 **Descrição dos diretórios:**
@@ -127,25 +124,24 @@ O arquivo disponibilizado no repositório é destinado à documentação e não 
 
 ## 9. Estado atual e limitações
 
-O projeto encontra-se na fase de desenvolvimento e avaliação de um protótipo acadêmico.
+O protótipo encontra-se funcional e foi avaliado por meio de dez pedidos simulados, executados três vezes cada, totalizando 30 execuções.
 
-O workflow contempla recebimento de mensagens, validação das descrições, classificação das peças, consulta de preços e retorno de estimativas.
+Nos testes realizados, a pontuação exata coincidiu com o gabarito em 80,0% das execuções, enquanto a classificação de complexidade e o preço de referência apresentaram 96,7% de acerto. Nove dos dez pedidos mantiveram classificação e preço corretos nas três execuções.
 
-As integrações e melhorias ainda precisam ser verificadas por meio de testes completos para avaliar a confiabilidade, a coerência dos orçamentos e o comportamento do chatbot em diferentes situações.
+O sistema permanece limitado à geração de orçamentos de referência para chaveiros de personagens fictícios em biscuit de até 5 cm. Os preços utilizados são previamente cadastrados e não representam um cálculo financeiro individual realizado em tempo real.
 
-A comunicação com o cliente está implementada inicialmente pelo Telegram. A integração com WhatsApp permanece como possibilidade de desenvolvimento futuro.
-
-O sistema ainda não representa um produto comercial finalizado.
+A avaliação foi realizada com pedidos simulados e sem participação de clientes ou artesãos externos. Portanto, os resultados representam a avaliação técnica do protótipo dentro do escopo definido para o trabalho.
 
 ## 10. Próximas etapas
 
-- Realizar testes com diferentes descrições de produtos artesanais.
-- Avaliar os resultados da classificação e dos preços estimados.
-- Verificar o funcionamento do agrupamento de mensagens.
-- Identificar e corrigir eventuais erros nas integrações.
-- Organizar as evidências e capturas de tela dos testes.
-- Atualizar a documentação acadêmica e o diagrama de arquitetura.
-- Avaliar possíveis melhorias na comunicação com os clientes.
+Como possibilidades de continuidade do projeto, podem ser consideradas:
+
+- Ampliação para outros produtos e tamanhos;
+- Utilização de imagens como entrada;
+- Integração com outros canais de atendimento;
+- Adoção de métodos mais detalhados de formação de preço;
+- Avaliação de valores menores de temperatura do modelo de linguagem;
+- Realização de testes com usuários reais.
 
 ## 11. Autoria
 
