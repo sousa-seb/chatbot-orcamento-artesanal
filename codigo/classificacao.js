@@ -1,9 +1,9 @@
 const item = $input.first();
 
-// Pega a resposta do Gemini
+// Pega resposta Gemini
 const texto = item.json.content.parts[0].text;
 
-// Converte o texto JSON do Gemini em objeto
+// Converte texto JSON do Gemini em objeto
 const dados = JSON.parse(texto);
 
 // Soma os cinco critérios
@@ -14,7 +14,7 @@ const pontuacao =
   dados.acessorios +
   dados.detalhes_pequenos;
 
-// Define a complexidade
+// Define complexidade
 let complexidade;
 
 if (pontuacao <= 8) {
@@ -25,7 +25,7 @@ if (pontuacao <= 8) {
   complexidade = "Elaborada";
 }
 
-// Retorna os dados organizados
+// Retorna dados organizados
 return [
   {
     json: {
